@@ -1,0 +1,49 @@
+/* ============================================
+   SCOPED LAYOUT FIXES FOR PROBLEM PAGE ONLY
+   These styles only apply to elements inside .problem-page-container
+   ============================================ */
+
+/* Wrap all rules with .problem-page-container */
+
+.problem-page-container.h-screen {
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+.problem-page-container .flex-1 {
+  min-height: 0 !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.problem-page-container .overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.problem-page-container .h-full {
+  height: 100% !important;
+}
+
+.problem-page-container [data-panel-group] {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.problem-page-container [data-panel] {
+  overflow: hidden !important;
+}
+
+.problem-page-container [data-panel-resize-handle] {
+  flex-shrink: 0 !important;
+}
+
+.problem-page-container .flex.flex-col {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.problem-page-container .flex-1 > div {
+  height: 100% !important;
+  width: 100% !important;
+}

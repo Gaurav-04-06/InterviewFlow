@@ -1,0 +1,9 @@
+npx ngrok http 3000
+
+npx inngest-cli dev --port 8288
+
+cd backend
+pnpm run dev
+
+cd frontend 
+pnpm run dev
