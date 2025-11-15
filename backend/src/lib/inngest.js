@@ -3,6 +3,7 @@ import { connectDB } from "./db.js";
 import { upsertStreamUser, deleteStreamUser } from "./stream.js";
 import User from "../models/User.js";
 
+// ------------------ Inngest Client ------------------
 export const inngest = new Inngest({
   id: "interviewFlow",
   baseUrl:
@@ -11,6 +12,12 @@ export const inngest = new Inngest({
       : undefined,
 });
 
+// Helper: Get Clerk user safely (supports all formats)
+const getClerkUser = (event) => {
+  return event.data?.object || event.data || null;
+};
+
+// ------------------ User Created ------------------
 export const syncUser = inngest.createFunction(
   { id: "sync-user" },
   { event: "clerk/user.created" },
@@ -18,19 +25,20 @@ export const syncUser = inngest.createFunction(
     return await step.run("save-user-to-db", async () => {
       await connectDB();
 
-      const userData = event.data.data;
+      const userData = getClerkUser(event);
 
       if (!userData) {
-        console.error("❌ No user data found in event");
+        console.error("❌ No user data found for clerk/user.created");
         return { success: false, error: "No user data found" };
       }
 
       const { id, first_name, last_name, image_url } = userData;
-      const email = userData.email_addresses?.[0]?.email_address || null;
+      const email =
+        userData.email_addresses?.[0]?.email_address || null;
 
       const newUser = {
         clerkId: id,
-        email: email,
+        email,
         name: `${first_name || ""} ${last_name || ""}`.trim(),
         profileImage: image_url,
       };
@@ -38,19 +46,16 @@ export const syncUser = inngest.createFunction(
       const user = await User.create(newUser);
       console.log("✅ User saved to MongoDB:", user);
 
-      // Create Stream user
+      // Sync Stream user
       try {
         await upsertStreamUser({
           id: newUser.clerkId.toString(),
           name: newUser.name,
           image: newUser.profileImage,
         });
-        console.log("✅ User saved to Stream successfully");
-      } catch (streamError) {
-        console.error(
-          "⚠️ Stream user creation warning (non-blocking):",
-          streamError.message
-        );
+        console.log("✅ Stream user created/updated");
+      } catch (err) {
+        console.error("⚠️ Stream user creation warning:", err.message);
       }
 
       return { success: true, userId: user._id };
@@ -58,6 +63,7 @@ export const syncUser = inngest.createFunction(
   }
 );
 
+// ------------------ User Deleted ------------------
 export const deleteUserFromDB = inngest.createFunction(
   { id: "delete-user-from-db" },
   { event: "clerk/user.deleted" },
@@ -65,26 +71,24 @@ export const deleteUserFromDB = inngest.createFunction(
     return await step.run("delete-user", async () => {
       await connectDB();
 
-      const userData = event.data.data;
+      const userData = getClerkUser(event);
 
       if (!userData) {
-        console.error("❌ No user data found in event");
+        console.error("❌ No user data found for clerk/user.deleted");
         return { success: false, error: "No user data found" };
       }
 
       const { id } = userData;
+
       const result = await User.deleteOne({ clerkId: id });
       console.log("✅ User deleted from MongoDB:", id);
 
-      // Delete Stream user
+      // Sync Stream delete
       try {
         await deleteStreamUser(id.toString());
-        console.log("✅ User deleted from Stream successfully");
-      } catch (streamError) {
-        console.error(
-          "⚠️ Stream user deletion warning (non-blocking):",
-          streamError.message
-        );
+        console.log("✅ Stream user deleted");
+      } catch (err) {
+        console.error("⚠️ Stream user delete warning:", err.message);
       }
 
       return { success: true, deletedCount: result.deletedCount };
@@ -92,4 +96,5 @@ export const deleteUserFromDB = inngest.createFunction(
   }
 );
 
+// Export all functions
 export const functions = [syncUser, deleteUserFromDB];
