@@ -2,11 +2,6 @@
 
 <div align="center">
 
-<!-- Add your project banner/logo here -->
-<!-- Recommended size: 1200x400px -->
-
-![InterviewFlow Banner](./docs/images/banner.png)
-
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge)](https://frontend-cdzi.onrender.com)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github)](https://github.com/Gaurav-04-06/InterviewFlow)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)
@@ -136,7 +131,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 [![GitHub](https://img.shields.io/badge/GitHub-@Gaurav--04--06-black?style=flat&logo=github)](https://github.com/Gaurav-04-06)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Gaurav%20Kohli-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/gaurav-kohli-a59760318/)
-[![Email](https://img.shields.io/badge/Email-gauravkohli204@gmail.com-red?style=flat&logo=gmail)](mailto:gauravkohli204@gmail.com)
 
 ---
 
