@@ -1,28 +1,34 @@
-import { requireAuth } from "@clerk/express";
+import { clerkClient } from "@clerk/express";
 import User from "../models/User.js";
 
-export const protectRoute = [
-  requireAuth({
-    signInUrl: "/sign-in",
-  }),
-  async (req, res, next) => {
-    try {
-      const clerkId = req.auth().userId;
-
-      if (!clerkId)
-        return res.status(401).json({ msg: "Unauthorized: No Clerk ID found" });
-
-      // find the user in the database
-      const user = await User.findOne({ clerkId });
-
-      if (!user)
-        return res.status(400).json({ msg: "User not found in database" });
-
-      req.user = user; // attach user to request object
-      next();
-    } catch (error) {
-      console.error("Error in protectRoute middleware:", error);
-      res.status(500).json({ msg: "Server error in authentication" });
+export const protectRoute = async (req, res, next) => {
+  try {
+    // Get token from Authorization header
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ msg: "No token provided" });
     }
-  },
-];
+
+    // Verify token with Clerk
+    const payload = await clerkClient.verifyToken(token);
+    const clerkId = payload.sub;
+
+    if (!clerkId) {
+      return res.status(401).json({ msg: "Invalid token" });
+    }
+
+    // Find user in database
+    const user = await User.findOne({ clerkId });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found in database" });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Error in protectRoute:", error);
+    res.status(401).json({ msg: "Authentication failed" });
+  }
+};
