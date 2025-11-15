@@ -2,27 +2,26 @@ import { requireAuth } from "@clerk/express";
 import User from "../models/User.js";
 
 export const protectRoute = [
-  requireAuth({
-    signInUrl: "/sign-in",
-  }),
+  requireAuth(),
   async (req, res, next) => {
     try {
-      const clerkId = req.auth().userId;
+      const clerkId = req.auth.userId;
 
-      if (!clerkId)
-        return res.status(401).json({ msg: "Unauthorized: No Clerk ID found" });
+      if (!clerkId) {
+        return res.status(401).json({ msg: "Not authenticated" });
+      }
 
-      // find the user in the database
       const user = await User.findOne({ clerkId });
 
-      if (!user)
-        return res.status(400).json({ msg: "User not found in database" });
+      if (!user) {
+        return res.status(404).json({ msg: "User not found" });
+      }
 
-      req.user = user; // attach user to request object
+      req.user = user;
       next();
     } catch (error) {
-      console.error("Error in protectRoute middleware:", error);
-      res.status(500).json({ msg: "Server error in authentication" });
+      console.error("Auth error:", error);
+      res.status(500).json({ msg: "Server error" });
     }
   },
 ];
