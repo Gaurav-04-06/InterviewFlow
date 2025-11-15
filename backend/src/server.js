@@ -44,7 +44,7 @@ app.post("/api/webhook/clerk", async (req, res) => {
 
     await inngest.send({
       name: `clerk/${type}`,
-      data: { data },
+      data: data ,
     });
 
     console.log("✅ Event forwarded to Inngest");
