@@ -50,18 +50,19 @@ app.use("/api/sessions", sessionRoutes);
 app.post("/api/webhook/clerk", async (req, res) => {
   try {
     const { type, data } = req.body;
-    console.log("📥 Received Clerk webhook:", type);
-
+    
     await inngest.send({
       name: `clerk/${type}`,
-      data: data ,
+      data: data,
     });
 
-    console.log("✅ Event forwarded to Inngest");
-    res.json({ success: true });
+    // ✅ Always respond with 200
+    res.status(200).json({ success: true });
+    
   } catch (error) {
-    console.error("❌ Webhook Error:", error);
-    res.status(500).json({ error: "Webhook processing failed" });
+    console.error("Webhook Error:", error);
+    // ✅ Still respond 200 to prevent retries
+    res.status(200).json({ success: false, error: error.message });
   }
 });
 
