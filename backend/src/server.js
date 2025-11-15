@@ -1,13 +1,13 @@
 import express from "express";
-import { ENV } from "./lib/env.js"; // ✅ Change from ../lib/env.js to ./lib/env.js
+import { ENV } from "./lib/env.js"; 
 import cors from "cors";
-import { connectDB } from "./lib/db.js"; // ✅ Also fix this
+import { connectDB } from "./lib/db.js"; 
 import { serve } from "inngest/express";
-import { inngest, functions } from "./lib/inngest.js"; // ✅ Also fix this
+import { inngest, functions } from "./lib/inngest.js"; 
 import { clerkMiddleware } from "@clerk/express";
-import chatRoutes from "./routes/chatRoutes.js"; // ✅ Add routes/ path
-import sessionRoutes from "./routes/sessionRoutes.js"; // ✅ Add routes/ path
-import User from "./models/User.js"; // ✅ Also fix this
+import chatRoutes from "./routes/chatRoutes.js"; 
+import sessionRoutes from "./routes/sessionRoutes.js"; 
+import User from "./models/User.js"; 
 
 const app = express();
 
