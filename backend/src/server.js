@@ -30,7 +30,11 @@ app.use(
   })
 );
 
-app.use(clerkMiddleware());
+app.use("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+// app.use(clerkMiddleware());
 
 // Inngest middleware
 app.use(
@@ -43,8 +47,8 @@ app.use(
   })
 );
 
-app.use("/api/chat", chatRoutes);
-app.use("/api/sessions", sessionRoutes);
+app.use("/api/chat" , clerkMiddleware() ,  chatRoutes);
+app.use("/api/sessions", clerkMiddleware() , sessionRoutes);
 
 // Add Clerk webhook handler
 app.post("/api/webhook/clerk", async (req, res) => {
@@ -56,7 +60,6 @@ app.post("/api/webhook/clerk", async (req, res) => {
       data: data,
     });
 
-    // ✅ Always respond with 200
     res.status(200).json({ success: true });
     
   } catch (error) {
@@ -85,13 +88,6 @@ app.get("/api/debug/user", clerkMiddleware(), async (req, res) => {
   }
 });
 
-app.all("/health", (req, res) => {
-  res.status(200).json({ status: "OK" });
-});
-
-app.head("/health", (req, res) => {
-  res.status(200).end();
-});
 
 const startUp = async () => {
   try {
