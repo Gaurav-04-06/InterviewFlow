@@ -89,6 +89,10 @@ app.all("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
 });
 
+app.head("/health", (req, res) => {
+  res.status(200).end();
+});
+
 const startUp = async () => {
   try {
     await connectDB();
