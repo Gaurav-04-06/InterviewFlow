@@ -6,10 +6,13 @@ export const connectDB = async () => {
     if (!ENV.DB_URL) {
       throw new Error("Database URL is not defined");
     }
+
+    console.log("Trying to connect to DB...");
     await mongoose.connect(ENV.DB_URL);
+
     console.log("Database connected successfully");
   } catch (error) {
-    console.log("error in connecting to the database");
+    console.error("FULL DB ERROR:", error);  
     process.exit(1);
   }
 };
