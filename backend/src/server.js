@@ -85,8 +85,8 @@ app.get("/api/debug/user", clerkMiddleware(), async (req, res) => {
   }
 });
 
-app.get("/health", (req, res) => {
-  res.status(200).json({ msg: "api is up and running" });
+app.all("/health", (req, res) => {
+  res.status(200).json({ status: "OK" });
 });
 
 const startUp = async () => {
