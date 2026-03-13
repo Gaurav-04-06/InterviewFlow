@@ -1,8 +1,6 @@
-// Change the URL from Piston to Judge0 public instance
 const JUDGE0_API =
-  "https://ce.judge0.com/submissions?base64_encoded=false&wait=true";
+  "https://ce.judge0.com/submissions?base64_encoded=true&wait=true";
 
-// Language IDs for Judge0
 const LANGUAGE_IDS = {
   javascript: 63,
   python: 71,
@@ -27,31 +25,29 @@ export async function executeCode(language, code) {
 
     const response = await fetch(JUDGE0_API, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // ✅ NO API KEY NEEDED AT ALL
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         language_id: languageId,
-        source_code: code,
+        source_code: btoa(unescape(encodeURIComponent(code))),
         stdin: "",
       }),
     });
 
     const data = await response.json();
-    const output = data.stdout || "";
-    const stderr = data.stderr || data.compile_output || "";
+    const output = data.stdout ? decodeURIComponent(escape(atob(data.stdout))) : "";
+    const stderr = data.stderr 
+      ? decodeURIComponent(escape(atob(data.stderr))) 
+      : data.compile_output 
+      ? decodeURIComponent(escape(atob(data.compile_output))) 
+      : "";
 
     if (stderr) return { success: false, output, error: stderr };
     return { success: true, output: output || "No output" };
+
   } catch (error) {
     return { success: false, error: `Failed to execute: ${error.message}` };
   }
 }
 
-export function getSupportedLanguages() {
-  return Object.keys(LANGUAGE_IDS);
-}
-export function isLanguageSupported(language) {
-  return language in LANGUAGE_IDS;
-}
+export function getSupportedLanguages() { return Object.keys(LANGUAGE_IDS); }
+export function isLanguageSupported(language) { return language in LANGUAGE_IDS; }
